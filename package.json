@@ -1,5 +1,5 @@
 {
-  "name": "tugas_satu",
+  "name": "jobfindout",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -7,7 +7,7 @@
     "start": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nuku Malik",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
