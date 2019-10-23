@@ -15,14 +15,16 @@ module.exports = {
 		if (orderby == 'category') order = 'k.name';
 		if (typeof orderby == 'undefined') order = 'j.updated_at';
 
-		let check = { id, name, company, limit, page }
+		let redis_key = '';
+		if (name) redis_key += name;
+		if (company) redis_key += company;
 
 		Job.getJobs(id, name, company, limit, offset, orderby)
 			.then(result => {
 				let data = JSON.stringify(result);
 
-				redis.addCache(check, data)
-				
+				redis.addCache(redis_key, data);
+
 				if (result.length < 1) {
 					res.json({
 						status: 200,
