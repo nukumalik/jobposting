@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const cors = require('cors');
+const morgan = require('morgan');
 
 // Main App
 const app = express();
@@ -16,6 +17,9 @@ require('./src/helpers/passport')(passport);
 
 // CORS
 app.use(cors());
+
+// Logger
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 // Routes
 app.use(require('./src/config/routes'));
