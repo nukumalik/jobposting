@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
 	getUsers: (req, res) => {
-		User.getUsers()
+		let { id, username } = req.params;
+		let { name } = req.query;
+		User.getUsers(id, username)
 			.then(result => {
 				if (result.length < 1) {
 					res.json({ message: 'User is empty' });

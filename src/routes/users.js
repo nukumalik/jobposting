@@ -8,6 +8,8 @@ const usersController = require('../controllers/usersController');
 const isAuthenticate = passport.authenticate('jwt', { session: false });
 
 router
+	.get('/:id', usersController.getUsers)
+	.get('/:username', usersController.getUsers)
 	.get('/', usersController.getUsers)
 	.post('/login', usersController.loginUsers)
 	.post('/register', usersController.registerUsers)

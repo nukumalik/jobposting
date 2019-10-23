@@ -1,17 +1,16 @@
 const db = require('../config/database');
 
 module.exports = {
-	getUsers: (id, name, company, limit, offset, orderby) => {
+	getUsers: (id, name, username, limit, offset, orderby) => {
 		return new Promise((resolve, reject) => {
 			let sql = 'SELECT * FROM users';
 
 			// Single job by ID
 			if (id) sql += ` WHERE id='${id}'`;
+			if (username) sql += ` WHERE username='${username}'`;
 
 			// Seacrh
-			// if (name) sql += ` WHERE name like '%${name}%'`;
-			// if (company) sql += ` WHERE c.name like '%${company}%'`;
-			// if (name && company) sql += ` WHERE j.name like '%${name}% AND c.name like '%${company}%'`;
+			if (name) sql += ` WHERE name like '%${name}%'`;
 
 			// Sort
 			if (orderby) sql += ` ORDER BY ${orderby}`;

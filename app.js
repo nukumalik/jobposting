@@ -12,13 +12,13 @@ app.use(bodyParser.json());
 
 // Passport Middleware
 app.use(passport.initialize());
-require('./helpers/passport')(passport);
+require('./src/helpers/passport')(passport);
 
 // CORS
 app.use(cors());
 
 // Routes
-app.use(require('./config/routes'));
+app.use(require('./src/config/routes'));
 
 // Port
 const port = process.env.PORT || 3000;

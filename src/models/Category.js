@@ -11,9 +11,6 @@ module.exports = {
 			// Seacrh
 			if (name) sql += ` WHERE name like '%${name}%'`;
 
-			// Sort
-			if (orderby) sql += ` ORDER BY ${orderby}`;
-
 			// Pagination
 			if (limit) sql += ` LIMIT ${limit}`;
 			if (offset) sql += ` OFFSET ${offset}`;

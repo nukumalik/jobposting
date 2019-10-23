@@ -1,5 +1,6 @@
 const Job = require('../models/Job');
 const uuid = require('uuid/v4');
+const redis = require('../helpers/redis');
 
 module.exports = {
 	getJobs: (req, res) => {
@@ -14,8 +15,14 @@ module.exports = {
 		if (orderby == 'category') order = 'k.name';
 		if (typeof orderby == 'undefined') order = 'j.updated_at';
 
+		let check = { id, name, company, limit, page }
+
 		Job.getJobs(id, name, company, limit, offset, orderby)
 			.then(result => {
+				let data = JSON.stringify(result);
+
+				redis.addCache(check, data)
+				
 				if (result.length < 1) {
 					res.json({
 						status: 200,

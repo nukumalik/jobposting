@@ -1,9 +1,10 @@
 const Category = require('../models/Category');
+// const client = require('../helpers/cache');
 
 module.exports = {
 	getCategories: (req, res) => {
 		const { id } = req.params;
-		let { name, limit, page, orderby } = req.query;
+		let { name, limit, page } = req.query;
 
 		limit = limit || 5;
 		page = page || 1;
@@ -11,6 +12,7 @@ module.exports = {
 
 		Category.getCategories(id, name, limit, offset)
 			.then(result => {
+				// client.setex(name, 3600, result);
 				if (result.length < 1) {
 					res.json({
 						status: 200,
