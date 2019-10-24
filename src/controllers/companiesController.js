@@ -57,14 +57,22 @@ module.exports = {
 	},
 	updateCompanies: (req, res) => {
 		const { id } = req.params;
-		const { name, logo, location, description } = req.body;
+		const { name, location, description } = req.body;
+		const logo = req.file.filename;
 
 		const data = {};
 		if (name) data.name = name;
-		if (logo) data.logo = logo;
+		if (logo) {
+			data.logo = logo;
+
+			Company.getCompanies(id).then(result => {
+				const dir = path.join(__dirname, `../../public/uploads/${result[0].logo}`);
+				fs.unlinkSync(dir);
+			});
+		}
 		if (location) data.location = location;
 		if (description) data.description = description;
-
+				
 		Company.updateCompanies(data, id).then(result => {
 			redis.client.get(req.baseUrl, (err, result) => {
 				redis.deleteCache(req.baseUrl);
