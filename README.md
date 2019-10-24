@@ -78,4 +78,6 @@ Create user table
  - passport-jwt
  - mysql
  - redis
+ - multer
+ - morgan
 
