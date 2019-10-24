@@ -8,7 +8,7 @@ const morgan = require('morgan');
 const app = express();
 
 // Body Parser Middleware
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Passport Middleware

@@ -40,7 +40,12 @@ module.exports = {
 
 		Job.addJobs(data)
 			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+				redis.client.get(req.baseUrl, (err, result) => {
+					redis.deleteCache(req.baseUrl);
+				});
+				redis.client.get(req.originalUrl, (err, result) => {
+					redis.deleteCache(req.originalUrl);
+				});
 				res.json({
 					status: 200,
 					error: false,
@@ -65,7 +70,12 @@ module.exports = {
 		if (updated_at) data.updated_at = updated_at;
 
 		Job.updateJobs(data, id).then(result => {
-			redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+			redis.client.get(req.baseUrl, (err, result) => {
+				redis.deleteCache(req.baseUrl);
+			});
+			redis.client.get(req.originalUrl, (err, result) => {
+				redis.deleteCache(req.originalUrl);
+			});
 			res.json({
 				status: 200,
 				error: false,
@@ -79,7 +89,12 @@ module.exports = {
 
 		Job.deleteJobs(id)
 			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+				redis.client.get(req.baseUrl, (err, result) => {
+					redis.deleteCache(req.baseUrl);
+				});
+				redis.client.get(req.originalUrl, (err, result) => {
+					redis.deleteCache(req.originalUrl);
+				});
 				res.json({
 					status: 200,
 					error: false,

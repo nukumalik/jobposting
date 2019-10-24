@@ -1,6 +1,8 @@
 const Company = require('../models/Company');
 const uuid = require('uuid/v4');
 const redis = require('../helpers/redis');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = {
 	getCompanies: (req, res) => {
@@ -32,12 +34,18 @@ module.exports = {
 	},
 	addCompanies: (req, res) => {
 		const id = uuid();
-		const { name, logo, location, description } = req.body;
+		const logo = req.file.filename;
+		const { name, location, description } = req.body;
 		const data = { id, name, logo, location, description };
 
 		Company.addCompanies(data)
 			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+				redis.client.get(req.baseUrl, (err, result) => {
+					redis.deleteCache(req.baseUrl);
+				});
+				redis.client.get(req.originalUrl, (err, result) => {
+					redis.deleteCache(req.originalUrl);
+				});
 				res.json({
 					status: 200,
 					error: false,
@@ -58,7 +66,12 @@ module.exports = {
 		if (description) data.description = description;
 
 		Company.updateCompanies(data, id).then(result => {
-			redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+			redis.client.get(req.baseUrl, (err, result) => {
+				redis.deleteCache(req.baseUrl);
+			});
+			redis.client.get(req.originalUrl, (err, result) => {
+				redis.deleteCache(req.originalUrl);
+			});
 			res.json({
 				status: 200,
 				error: false,
@@ -69,16 +82,24 @@ module.exports = {
 	},
 	deleteCompanies: (req, res) => {
 		const { id } = req.params;
-
-		Company.deleteCompanies(id)
-			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
-				res.json({
-					status: 200,
-					error: false,
-					message: `Success to delete a company with ID: ${id}`
-				});
-			})
-			.catch(err => console.log(err));
+		Company.getCompanies(id).then(result => {
+			const dir = path.join(__dirname, `../../public/uploads/${result[0].logo}`);
+			fs.unlinkSync(dir);
+			Company.deleteCompanies(id)
+				.then(result => {
+					redis.client.get(req.baseUrl, (err, result) => {
+						redis.deleteCache(req.baseUrl);
+					});
+					redis.client.get(req.originalUrl, (err, result) => {
+						redis.deleteCache(req.originalUrl);
+					});
+					res.json({
+						status: 200,
+						error: false,
+						message: `Success to delete a company with ID: ${id}`
+					});
+				})
+				.catch(err => console.log(err));
+		});
 	}
 };

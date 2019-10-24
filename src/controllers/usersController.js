@@ -106,7 +106,12 @@ module.exports = {
 		}
 
 		User.updateUsers(data, id).then(result => {
-			redis.deleteCache(req.baseUrl).deleteCache(req.originalurl);
+			redis.client.get(req.baseUrl, (err, result) => {
+				redis.deleteCache(req.baseUrl);
+			});
+			redis.client.get(req.originalUrl, (err, result) => {
+				redis.deleteCache(req.originalUrl);
+			});
 			res.json({
 				status: 200,
 				error: false,
@@ -120,7 +125,12 @@ module.exports = {
 
 		User.deleteUsers(id)
 			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalurl);
+				redis.client.get(req.baseUrl, (err, result) => {
+					redis.deleteCache(req.baseUrl);
+				});
+				redis.client.get(req.originalUrl, (err, result) => {
+					redis.deleteCache(req.originalUrl);
+				});
 				res.json({
 					status: 200,
 					error: false,

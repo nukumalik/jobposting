@@ -16,7 +16,7 @@ module.exports = {
 			if (result != null) {
 				res.send({ msg: 'From redis', result: JSON.parse(result) });
 			} else {
-				next();
+				return next(err);
 			}
 		});
 	},
@@ -24,7 +24,7 @@ module.exports = {
 		client.setex(key, 60, data);
 	},
 	deleteCache: key => {
-		client.del(keys);
+		client.del(key);
 	},
 	client
 };

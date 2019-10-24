@@ -31,7 +31,12 @@ module.exports = {
 
 		Category.addCategories(name)
 			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+				redis.client.get(req.baseUrl, (err, result) => {
+					redis.deleteCache(req.baseUrl);
+				});
+				redis.client.get(req.originalUrl, (err, result) => {
+					redis.deleteCache(req.originalUrl);
+				});
 				res.json({
 					status: 200,
 					error: false,
@@ -46,7 +51,12 @@ module.exports = {
 		const { name } = req.body;
 
 		Category.updateCategories(name, id).then(result => {
-			redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+			redis.client.get(req.baseUrl, (err, result) => {
+				redis.deleteCache(req.baseUrl);
+			});
+			redis.client.get(req.originalUrl, (err, result) => {
+				redis.deleteCache(req.originalUrl);
+			});
 			res.json({
 				status: 200,
 				error: false,
@@ -60,7 +70,12 @@ module.exports = {
 
 		Category.deleteCategories(id)
 			.then(result => {
-				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
+				redis.client.get(req.baseUrl, (err, result) => {
+					redis.deleteCache(req.baseUrl);
+				});
+				redis.client.get(req.originalUrl, (err, result) => {
+					redis.deleteCache(req.originalUrl);
+				});
 				res.json({
 					status: 200,
 					error: false,
