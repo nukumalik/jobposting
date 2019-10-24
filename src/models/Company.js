@@ -6,33 +6,19 @@ module.exports = {
 			let sql = 'SELECT * FROM companies';
 
 			// Single job by ID
-			if (id) {
-				sql += ` WHERE id='${id}'`;
-			}
+			if (id) sql += ` WHERE id='${id}'`;
 
 			// Seacrh
-			if (name && !location) {
-				sql += ` WHERE name like '%${name}%'`;
-			}
-			if (location && !name) {
-				sql += ` WHERE location like '%${location}%'`;
-			}
-			if (name && location) {
-				sql += ` WHERE name LIKE '%${name}%' AND location LIKE '%${location}%'`;
-			}
+			if (name && !location) sql += ` WHERE name like '%${name}%'`;
+			if (location && !name) sql += ` WHERE location like '%${location}%'`;
+			if (name && location) sql += ` WHERE name LIKE '%${name}%' AND location LIKE '%${location}%'`;
 
 			// Sort
-			if (orderby) {
-				sql += ` ORDER BY ${orderby}`;
-			}
+			if (orderby) sql += ` ORDER BY ${orderby}`;
 
 			// Pagination
-			if (limit) {
-				sql += ` LIMIT ${limit}`;
-			}
-			if (offset) {
-				sql += ` OFFSET ${offset}`;
-			}
+			if (limit) sql += ` LIMIT ${limit}`;
+			if (offset) sql += ` OFFSET ${offset}`;
 
 			db.query(sql, (err, result) => {
 				if (!err) {

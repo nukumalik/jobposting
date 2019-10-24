@@ -11,30 +11,13 @@ module.exports = {
 		page = page || 1;
 		let offset = limit * (page - 1);
 
-		if (orderby == 'name') {
-			orderby = 'j.name';
-		}
-		if (orderby == 'category') {
-			order = 'k.name';
-		}
-		if (typeof orderby == 'undefined') {
-			order = 'j.updated_at';
-		}
-
-		let redis_key = '';
-		if (name) {
-			redis_key += name;
-		}
-		if (company) {
-			redis_key += company;
-		}
+		if (orderby == 'name') orderby = 'j.name';
+		if (orderby == 'category') order = 'k.name';
+		if (typeof orderby == 'undefined') order = 'j.updated_at';
 
 		Job.getJobs(id, name, company, limit, offset, orderby)
 			.then(result => {
-				let data = JSON.stringify(result);
-
-				redis.addCache(redis_key, data);
-
+				redis.addCache(req.originalUrl, JSON.stringify(result));
 				if (result.length < 1) {
 					res.json({
 						status: 200,
@@ -56,14 +39,15 @@ module.exports = {
 		const data = { id, name, description, id_category, salary, location, id_company, created_at, updated_at };
 
 		Job.addJobs(data)
-			.then(result =>
+			.then(result => {
+				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
 				res.json({
 					status: 200,
 					error: false,
 					message: 'Success to add new job',
 					data
-				})
-			)
+				});
+			})
 			.catch(err => console.log(err));
 	},
 	updateJobs: (req, res) => {
@@ -72,48 +56,36 @@ module.exports = {
 		const updated_at = new Date();
 
 		const data = {};
-		if (name) {
-			data.name = name;
-		}
-		if (description) {
-			data.description = description;
-		}
-		if (id_category) {
-			data.id_category = id_category;
-		}
-		if (salary) {
-			data.salary = salary;
-		}
-		if (location) {
-			data.location = location;
-		}
-		if (id_company) {
-			data.id_company = id_company;
-		}
-		if (updated_at) {
-			data.updated_at = updated_at;
-		}
+		if (name) data.name = name;
+		if (description) data.description = description;
+		if (id_category) data.id_category = id_category;
+		if (salary) data.salary = salary;
+		if (location) data.location = location;
+		if (id_company) data.id_company = id_company;
+		if (updated_at) data.updated_at = updated_at;
 
-		Job.updateJobs(data, id).then(result =>
+		Job.updateJobs(data, id).then(result => {
+			redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
 			res.json({
 				status: 200,
 				error: false,
 				message: `Success to update a job with ID: ${id}`,
 				data
-			})
-		);
+			});
+		});
 	},
 	deleteJobs: (req, res) => {
 		const { id } = req.params;
 
 		Job.deleteJobs(id)
-			.then(result =>
+			.then(result => {
+				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
 				res.json({
 					status: 200,
 					error: false,
 					message: `Success to delete a job with ID: ${id}`
-				})
-			)
+				});
+			})
 			.catch(err => console.log(err));
 	}
 };

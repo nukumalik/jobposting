@@ -6,22 +6,14 @@ module.exports = {
 			let sql = 'SELECT * FROM categories';
 
 			// Single job by ID
-			if (id) {
-				sql += ` WHERE id='${id}'`;
-			}
+			if (id) sql += ` WHERE id='${id}'`;
 
 			// Seacrh
-			if (name) {
-				sql += ` WHERE name like '%${name}%'`;
-			}
+			if (name) sql += ` WHERE name like '%${name}%'`;
 
 			// Pagination
-			if (limit) {
-				sql += ` LIMIT ${limit}`;
-			}
-			if (offset) {
-				sql += ` OFFSET ${offset}`;
-			}
+			if (limit) sql += ` LIMIT ${limit}`;
+			if (offset) sql += ` OFFSET ${offset}`;
 
 			db.query(sql, (err, result) => {
 				if (!err) {

@@ -2,13 +2,16 @@ const User = require('../models/User');
 const uuid = require('uuid/v4');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const redis = require('../helpers/redis');
 
 module.exports = {
 	getUsers: (req, res) => {
 		let { id, username } = req.params;
 		let { name } = req.query;
+
 		User.getUsers(id, username)
 			.then(result => {
+				redis.addCache(req.originalUrl, JSON.stringify(result));
 				if (result.length < 1) {
 					res.json({ message: 'User is empty' });
 				} else {
@@ -26,7 +29,6 @@ module.exports = {
 					if (isMatch) {
 						User.loginUsers(email, password)
 							.then(result => {
-								console.log(result);
 								// Payload
 								const payload = {
 									id: result.id,
@@ -85,24 +87,12 @@ module.exports = {
 		const updated_at = new Date();
 
 		const data = {};
-		if (name) {
-			data.name = name;
-		}
-		if (username) {
-			data.username = username;
-		}
-		if (born) {
-			data.born = born;
-		}
-		if (gender) {
-			data.gender = gender;
-		}
-		if (address) {
-			data.address = address;
-		}
-		if (email) {
-			data.email = email;
-		}
+		if (name) data.name = name;
+		if (username) data.username = username;
+		if (born) data.born = born;
+		if (gender) data.gender = gender;
+		if (address) data.address = address;
+		if (email) data.email = email;
 		if (password) {
 			bcrypt.genSalt(10, (err, salt) => {
 				bcrypt.hash(password, salt, (err, hash) => {
@@ -115,26 +105,28 @@ module.exports = {
 			data.password = password;
 		}
 
-		User.updateUsers(data, id).then(result =>
+		User.updateUsers(data, id).then(result => {
+			redis.deleteCache(req.baseUrl).deleteCache(req.originalurl);
 			res.json({
 				status: 200,
 				error: false,
 				message: `Success to update a user with ID: ${id}`,
 				data
-			})
-		);
+			});
+		});
 	},
 	deleteUsers: (req, res) => {
 		const { id } = req.params;
 
 		User.deleteUsers(id)
-			.then(result =>
+			.then(result => {
+				redis.deleteCache(req.baseUrl).deleteCache(req.originalurl);
 				res.json({
 					status: 200,
 					error: false,
 					message: `Success to delete a user with ID: ${id}`
-				})
-			)
+				});
+			})
 			.catch(err => console.log(err));
 	}
 };

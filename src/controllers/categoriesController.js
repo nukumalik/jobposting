@@ -1,5 +1,5 @@
 const Category = require('../models/Category');
-// const client = require('../helpers/cache');
+const redis = require('../helpers/redis');
 
 module.exports = {
 	getCategories: (req, res) => {
@@ -12,7 +12,7 @@ module.exports = {
 
 		Category.getCategories(id, name, limit, offset)
 			.then(result => {
-				// client.setex(name, 3600, result);
+				redis.addCache(req.originalUrl, JSON.stringify(result));
 				if (result.length < 1) {
 					res.json({
 						status: 200,
@@ -30,40 +30,43 @@ module.exports = {
 		const { name } = req.body;
 
 		Category.addCategories(name)
-			.then(result =>
+			.then(result => {
+				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
 				res.json({
 					status: 200,
 					error: false,
 					message: 'Success to add new category',
 					data: name
-				})
-			)
+				});
+			})
 			.catch(err => console.log(err));
 	},
 	updateCategories: (req, res) => {
 		const { id } = req.params;
 		const { name } = req.body;
 
-		Category.updateCategories(name, id).then(result =>
+		Category.updateCategories(name, id).then(result => {
+			redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
 			res.json({
 				status: 200,
 				error: false,
 				message: `Success to update a category with ID: ${id}`,
 				data: name
-			})
-		);
+			});
+		});
 	},
 	deleteCategories: (req, res) => {
 		const { id } = req.params;
 
 		Category.deleteCategories(id)
-			.then(result =>
+			.then(result => {
+				redis.deleteCache(req.baseUrl).deleteCache(req.originalUrl);
 				res.json({
 					status: 200,
 					error: false,
 					message: `Success to delete a category with ID: ${id}`
-				})
-			)
+				});
+			})
 			.catch(err => console.log(err));
 	}
 };
