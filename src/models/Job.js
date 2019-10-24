@@ -10,9 +10,9 @@ module.exports = {
 			if (id) sql += ` WHERE j.id='${id}'`;
 
 			// Seacrh
-			if (name) sql += ` WHERE j.name like '%${name}%'`;
-			if (company) sql += ` WHERE c.name like '%${company}%'`;
-			if (name && company) sql += ` WHERE j.name like '%${name}% AND c.name like '%${company}%'`;
+			if (name && !company) sql += ` WHERE j.name like '%${name}%'`;
+			if (company && !name) sql += ` WHERE c.name like '%${company}%'`;
+			if (name && company) sql += ` WHERE j.name like '%${name}%' AND c.name like '%${company}%'`;
 
 			// Sort
 			if (orderby) sql += ` ORDER BY ${orderby}`;

@@ -22,7 +22,7 @@ app.use(cors());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 // Routes
-app.use(require('./src/config/routes'));
+app.use('/api/v1', require('./src/config/routes'));
 
 // Port
 const port = process.env.PORT || 3000;
