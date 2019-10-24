@@ -6,38 +6,62 @@ module.exports = {
 			let sql = 'SELECT * FROM categories';
 
 			// Single job by ID
-			if (id) sql += ` WHERE id='${id}'`;
+			if (id) {
+				sql += ` WHERE id='${id}'`;
+			}
 
 			// Seacrh
-			if (name) sql += ` WHERE name like '%${name}%'`;
+			if (name) {
+				sql += ` WHERE name like '%${name}%'`;
+			}
 
 			// Pagination
-			if (limit) sql += ` LIMIT ${limit}`;
-			if (offset) sql += ` OFFSET ${offset}`;
+			if (limit) {
+				sql += ` LIMIT ${limit}`;
+			}
+			if (offset) {
+				sql += ` OFFSET ${offset}`;
+			}
 
 			db.query(sql, (err, result) => {
-				!err ? resolve(result) : reject(new Error(err));
+				if (!err) {
+					resolve(result);
+				} else {
+					reject(new Error(err));
+				}
 			});
 		});
 	},
 	addCategories: name => {
 		return new Promise((resolve, reject) => {
 			db.query('INSERT INTO categories SET ?', name, (err, result) => {
-				!err ? resolve(result) : reject(new Error(err));
+				if (!err) {
+					resolve(result);
+				} else {
+					reject(new Error(err));
+				}
 			});
 		});
 	},
 	updateCategories: (name, id) => {
 		return new Promise((resolve, reject) => {
 			db.query('UPDATE categories SET ? WHERE id = ?', [name, id], (err, result) => {
-				!err ? resolve(result) : reject(new Error(err));
+				if (!err) {
+					resolve(result);
+				} else {
+					reject(new Error(err));
+				}
 			});
 		});
 	},
 	deleteCategories: id => {
 		return new Promise((resolve, reject) => {
 			db.query('DELETE FROM categories WHERE id = ?', id, (err, result) => {
-				!err ? resolve(result) : reject(new Error(err));
+				if (!err) {
+					resolve(result);
+				} else {
+					reject(new Error(err));
+				}
 			});
 		});
 	}

@@ -11,13 +11,23 @@ module.exports = {
 		page = page || 1;
 		let offset = limit * (page - 1);
 
-		if (orderby == 'name') orderby = 'j.name';
-		if (orderby == 'category') order = 'k.name';
-		if (typeof orderby == 'undefined') order = 'j.updated_at';
+		if (orderby == 'name') {
+			orderby = 'j.name';
+		}
+		if (orderby == 'category') {
+			order = 'k.name';
+		}
+		if (typeof orderby == 'undefined') {
+			order = 'j.updated_at';
+		}
 
 		let redis_key = '';
-		if (name) redis_key += name;
-		if (company) redis_key += company;
+		if (name) {
+			redis_key += name;
+		}
+		if (company) {
+			redis_key += company;
+		}
 
 		Job.getJobs(id, name, company, limit, offset, orderby)
 			.then(result => {
@@ -62,13 +72,27 @@ module.exports = {
 		const updated_at = new Date();
 
 		const data = {};
-		if (name) data.name = name;
-		if (description) data.description = description;
-		if (id_category) data.id_category = id_category;
-		if (salary) data.salary = salary;
-		if (location) data.location = location;
-		if (id_company) data.id_company = id_company;
-		if (updated_at) data.updated_at = updated_at;
+		if (name) {
+			data.name = name;
+		}
+		if (description) {
+			data.description = description;
+		}
+		if (id_category) {
+			data.id_category = id_category;
+		}
+		if (salary) {
+			data.salary = salary;
+		}
+		if (location) {
+			data.location = location;
+		}
+		if (id_company) {
+			data.id_company = id_company;
+		}
+		if (updated_at) {
+			data.updated_at = updated_at;
+		}
 
 		Job.updateJobs(data, id).then(result =>
 			res.json({

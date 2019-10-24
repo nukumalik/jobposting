@@ -21,8 +21,8 @@ module.exports = {
 		const { email, password } = req.body;
 		User.getUsers()
 			.then(result => {
-				const arrEmail = result.filter(person => person.email == email);
-				bcrypt.compare(password, arrEmail[0].password).then(isMatch => {
+				const user = result.filter(person => person.email == email);
+				bcrypt.compare(password, user[0].password).then(isMatch => {
 					if (isMatch) {
 						User.loginUsers(email, password)
 							.then(result => {
@@ -85,16 +85,30 @@ module.exports = {
 		const updated_at = new Date();
 
 		const data = {};
-		if (name) data.name = name;
-		if (username) data.username = username;
-		if (born) data.born = born;
-		if (gender) data.gender = gender;
-		if (address) data.address = address;
-		if (email) data.email = email;
+		if (name) {
+			data.name = name;
+		}
+		if (username) {
+			data.username = username;
+		}
+		if (born) {
+			data.born = born;
+		}
+		if (gender) {
+			data.gender = gender;
+		}
+		if (address) {
+			data.address = address;
+		}
+		if (email) {
+			data.email = email;
+		}
 		if (password) {
 			bcrypt.genSalt(10, (err, salt) => {
 				bcrypt.hash(password, salt, (err, hash) => {
-					if (err) console.log(err);
+					if (err) {
+						console.log(err);
+					}
 					password = hash;
 				});
 			});

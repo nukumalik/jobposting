@@ -11,15 +11,23 @@ client.on('connect', () => console.log(`Redis is running on port ${redisPort}`))
 module.exports = {
 	getCache: (req, res, next) => {
 		let page = 1;
-		req.query.page !== null ? (page = req.query.page) : page;
+		if (req.query.page !== null) {
+			page = req.query.page;
+		}
 
 		let { name, company, limit, orderby } = req.query;
 		let redis_key = '';
-		name ? (redis_key += name) : '';
-		company ? (redis_key += company) : '';
+		if (name) {
+			redis_key += name;
+		}
+		if (company) {
+			redis_key += company;
+		}
 
 		client.get(redis_key, (err, result) => {
-			if (err) console.log(err);
+			if (err) {
+				console.log(err);
+			}
 
 			if (result != null) {
 				res.send({ msg: 'From redis', result: JSON.parse(result) });

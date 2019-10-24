@@ -10,8 +10,12 @@ module.exports = {
 		page = page || 1;
 		let offset = limit * (page - 1);
 
-		if (orderby == 'location') order = 'location';
-		if (typeof orderby == 'undefined') order = 'name';
+		if (orderby == 'location') {
+			order = 'location';
+		}
+		if (typeof orderby == 'undefined') {
+			order = 'name';
+		}
 
 		Company.getCompanies(id, name, location, limit, offset, orderby)
 			.then(result => {
@@ -49,10 +53,18 @@ module.exports = {
 		const { name, logo, location, description } = req.body;
 
 		const data = {};
-		if (name) data.name = name;
-		if (logo) data.logo = logo;
-		if (location) data.location = location;
-		if (description) data.description = description;
+		if (name) {
+			data.name = name;
+		}
+		if (logo) {
+			data.logo = logo;
+		}
+		if (location) {
+			data.location = location;
+		}
+		if (description) {
+			data.description = description;
+		}
 
 		Company.updateCompanies(data, id).then(result =>
 			res.json({
