@@ -4,7 +4,7 @@ module.exports = {
 	getJobs: (id, name, company, limit, offset, orderby) => {
 		return new Promise((resolve, reject) => {
 			let sql =
-				'SELECT j.id, j.name AS jobs, j.description, k.name AS categories, j.salary, j.location, c.name AS companies, j.created_at, j.updated_at FROM jobs j INNER JOIN categories k ON j.id_category=k.id INNER JOIN companies c ON j.id_company=c.id';
+				'SELECT j.name AS jobs, j.description, k.name AS categories, j.salary, j.location, c.name AS companies, j.created_at, j.updated_at FROM jobs j INNER JOIN categories k ON j.id_category=k.id INNER JOIN companies c ON j.id_company=c.id';
 
 			// Single job by ID
 			if (id) sql += ` WHERE j.id='${id}'`;

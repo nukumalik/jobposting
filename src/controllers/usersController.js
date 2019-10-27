@@ -3,6 +3,7 @@ const uuid = require('uuid/v4');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const redis = require('../helpers/redis');
+const { validationResult } = require('express-validator');
 
 module.exports = {
 	getUsers: (req, res) => {
@@ -11,7 +12,6 @@ module.exports = {
 
 		User.getUsers(id, username)
 			.then(result => {
-				redis.addCache(req.originalUrl, JSON.stringify(result));
 				if (result.length < 1) {
 					res.json({ message: 'User is empty' });
 				} else {
@@ -22,64 +22,86 @@ module.exports = {
 	},
 	loginUsers: (req, res) => {
 		const { email, password } = req.body;
-		User.getUsers()
-			.then(result => {
-				const user = result.filter(person => person.email == email);
-				bcrypt.compare(password, user[0].password).then(isMatch => {
-					if (isMatch) {
-						User.loginUsers(email, password)
-							.then(result => {
-								// Payload
-								const payload = {
-									id: result.id,
-									name: result.name,
-									username: result.username,
-									email: result.email,
-									password: result.password
-								};
+		const errors = validationResult(req);
 
-								// Token
-								jwt.sign(payload, 'secret', { expiresIn: 3600 }, (err, token) => {
-									if (err) console.log(err);
-									res.json({
-										status: 200,
-										error: false,
-										message: 'Success to login',
-										token: 'Bearer ' + token
+		if(!errors.isEmpty()) {
+			return res.status(400).json({
+				status: 400,
+				error: true,
+				message: 'Failed to add login',
+				data: errors.array()
+			});
+		} else {
+			User.getUsers()
+				.then(result => {
+					const user = result.filter(person => person.email == email);
+					bcrypt.compare(password, user[0].password).then(isMatch => {
+						if (isMatch) {
+							User.loginUsers(email, password)
+								.then(result => {
+									// Payload
+									const payload = {
+										id: result.id,
+										name: result.name,
+										username: result.username,
+										email: result.email,
+										password: result.password
+									};
+
+									// Token
+									jwt.sign(payload, 'secret', { expiresIn: 3600 }, (err, token) => {
+										if (err) console.log(err);
+										res.json({
+											status: 200,
+											error: false,
+											message: 'Success to login',
+											token: 'Bearer ' + token
+										});
 									});
-								});
-							})
-							.catch(err => console.log(err));
-					} else {
-						res.json({
-							status: 400,
-							error: true,
-							message: 'Password invalid'
-						});
-					}
-				});
-			})
-			.catch(err => console.log(err));
+								})
+								.catch(err => console.log(err));
+						} else {
+							res.json({
+								status: 400,
+								error: true,
+								message: 'Password invalid'
+							});
+						}
+					});
+				})
+				.catch(err => console.log(err));
+		}
 	},
 	registerUsers: (req, res) => {
 		const id = uuid();
 		const { name, username, born, gender, address, email, password } = req.body;
 		const data = { id, name, username, born, gender, address, email, password };
-		bcrypt.genSalt(10, (err, salt) => {
-			bcrypt.hash(data.password, salt, (err, hash) => {
-				data.password = hash;
-				User.registerUsers(data)
-					.then(result =>
-						res.json({
-							status: 200,
-							error: false,
-							message: 'Success to register new user account',
-							data
-						})
-					)
-					.catch(err => console.log(err));
+		const errors = validationResult(req);
+
+		if(!errors.isEmpty()) {
+			return res.status(400).json({
+				status: 400,
+				error: true,
+				message: 'Failed to add new category',
+				data: errors.array()
 			});
-		});
+		} else {
+			bcrypt.genSalt(10, (err, salt) => {
+				bcrypt.hash(data.password, salt, (err, hash) => {
+					data.password = hash;
+					User.registerUsers(data)
+						.then(result =>
+							res.json({
+								status: 200,
+								error: false,
+								message: 'Success to register new user account',
+								data
+							})
+						)
+						.catch(err => console.log(err));
+				});
+			});
+		}
 	},
 	updateUsers: (req, res) => {
 		const { id } = req.params;
@@ -106,12 +128,6 @@ module.exports = {
 		}
 
 		User.updateUsers(data, id).then(result => {
-			redis.client.get(req.baseUrl, (err, result) => {
-				redis.deleteCache(req.baseUrl);
-			});
-			redis.client.get(req.originalUrl, (err, result) => {
-				redis.deleteCache(req.originalUrl);
-			});
 			res.json({
 				status: 200,
 				error: false,
@@ -125,12 +141,6 @@ module.exports = {
 
 		User.deleteUsers(id)
 			.then(result => {
-				redis.client.get(req.baseUrl, (err, result) => {
-					redis.deleteCache(req.baseUrl);
-				});
-				redis.client.get(req.originalUrl, (err, result) => {
-					redis.deleteCache(req.originalUrl);
-				});
 				res.json({
 					status: 200,
 					error: false,

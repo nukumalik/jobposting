@@ -1,5 +1,5 @@
 const Category = require('../models/Category');
-const redis = require('../helpers/redis');
+const { validationResult } = require('express-validator');
 
 module.exports = {
 	getCategories: (req, res) => {
@@ -12,7 +12,6 @@ module.exports = {
 
 		Category.getCategories(id, name, limit, offset)
 			.then(result => {
-				redis.addCache(req.originalUrl, JSON.stringify(result));
 				if (result.length < 1) {
 					res.json({
 						status: 200,
@@ -28,41 +27,45 @@ module.exports = {
 	},
 	addCategories: (req, res) => {
 		const { name } = req.body;
+		const errors = validationResult(req);
 
-		Category.addCategories(name)
-			.then(result => {
-				redis.client.get(req.baseUrl, (err, result) => {
-					redis.deleteCache(req.baseUrl);
-				});
-				redis.client.get(req.originalUrl, (err, result) => {
-					redis.deleteCache(req.originalUrl);
-				});
-				res.json({
-					status: 200,
-					error: false,
-					message: 'Success to add new category',
-					data: name
-				});
-			})
-			.catch(err => console.log(err));
+		if(!errors.isEmpty()) {
+			return res.status(400).json({
+				status: 400,
+				error: true,
+				message: 'Failed to add new category',
+				data: errors.array()
+			});
+		} else {
+			Category.addCategories(name)
+				.then(result => {
+					res.json({
+						status: 200,
+						error: false,
+						message: 'Success to add new category',
+						data: name
+					});
+				})
+				.catch(err => console.log(err));
+		}
 	},
 	updateCategories: (req, res) => {
 		const { id } = req.params;
 		const { name } = req.body;
 
-		Category.updateCategories(name, id).then(result => {
-			redis.client.get(req.baseUrl, (err, result) => {
-				redis.deleteCache(req.baseUrl);
-			});
-			redis.client.get(req.originalUrl, (err, result) => {
-				redis.deleteCache(req.originalUrl);
-			});
-			res.json({
-				status: 200,
-				error: false,
-				message: `Success to update a category with ID: ${id}`,
-				data: name
-			});
+		Category.getCategories(id).then(result => {
+			if(result) {
+				Category.updateCategories(name, id).then(result => {
+					res.status(200).json({
+						status: 200,
+						error: false,
+						message: `Success to update a category with ID: ${id}`,
+						data: name
+					});
+				});
+			} else {
+				throw new Error('ID not found')
+			}
 		});
 	},
 	deleteCategories: (req, res) => {
@@ -70,12 +73,6 @@ module.exports = {
 
 		Category.deleteCategories(id)
 			.then(result => {
-				redis.client.get(req.baseUrl, (err, result) => {
-					redis.deleteCache(req.baseUrl);
-				});
-				redis.client.get(req.originalUrl, (err, result) => {
-					redis.deleteCache(req.originalUrl);
-				});
 				res.json({
 					status: 200,
 					error: false,

@@ -1,6 +1,7 @@
 const Job = require('../models/Job');
 const uuid = require('uuid/v4');
 const redis = require('../helpers/redis');
+const { validationResult } = require('express-validator');
 
 module.exports = {
 	getJobs: (req, res) => {
@@ -32,28 +33,33 @@ module.exports = {
 			.catch(err => console.log(err));
 	},
 	addJobs: (req, res) => {
-		const id = uuid();
-		const { name, description, id_category, salary, location, id_company } = req.body;
-		const created_at = new Date();
-		const updated_at = new Date();
-		const data = { id, name, description, id_category, salary, location, id_company, created_at, updated_at };
+		const errors = validationResult(req);
 
-		Job.addJobs(data)
-			.then(result => {
-				redis.client.get(req.baseUrl, (err, result) => {
-					redis.deleteCache(req.baseUrl);
-				});
-				redis.client.get(req.originalUrl, (err, result) => {
-					redis.deleteCache(req.originalUrl);
-				});
-				res.json({
-					status: 200,
-					error: false,
-					message: 'Success to add new job',
-					data
-				});
+		if(!errors.isEmpty()) {
+			return res.status(400).json({
+				status: 400,
+				error: true,
+				message: 'Failed to add new job',
+				data: errors.array()
 			})
-			.catch(err => console.log(err));
+		} else {
+			const id = uuid();
+			const { name, description, id_category, salary, location, id_company } = req.body;
+			const created_at = new Date();
+			const updated_at = new Date();
+			const data = { id, name, description, id_category, salary, location, id_company, created_at, updated_at };
+
+			Job.addJobs(data)
+				.then(result => {
+					res.json({
+						status: 200,
+						error: false,
+						message: 'Success to add new job',
+						data
+					});
+				})
+				.catch(err => console.log(err));
+		}
 	},
 	updateJobs: (req, res) => {
 		const { id } = req.params;
@@ -70,12 +76,6 @@ module.exports = {
 		if (updated_at) data.updated_at = updated_at;
 
 		Job.updateJobs(data, id).then(result => {
-			redis.client.get(req.baseUrl, (err, result) => {
-				redis.deleteCache(req.baseUrl);
-			});
-			redis.client.get(req.originalUrl, (err, result) => {
-				redis.deleteCache(req.originalUrl);
-			});
 			res.json({
 				status: 200,
 				error: false,
@@ -89,12 +89,6 @@ module.exports = {
 
 		Job.deleteJobs(id)
 			.then(result => {
-				redis.client.get(req.baseUrl, (err, result) => {
-					redis.deleteCache(req.baseUrl);
-				});
-				redis.client.get(req.originalUrl, (err, result) => {
-					redis.deleteCache(req.originalUrl);
-				});
 				res.json({
 					status: 200,
 					error: false,

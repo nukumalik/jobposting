@@ -3,7 +3,7 @@ const db = require('../config/database');
 module.exports = {
 	getCategories: (id, name, limit, offset) => {
 		return new Promise((resolve, reject) => {
-			let sql = 'SELECT * FROM categories';
+			let sql = 'SELECT name FROM categories';
 
 			// Single job by ID
 			if (id) sql += ` WHERE id='${id}'`;
@@ -26,7 +26,7 @@ module.exports = {
 	},
 	addCategories: name => {
 		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO categories SET ?', name, (err, result) => {
+			db.query(`INSERT INTO categories (name) value ('${name}')`, (err, result) => {
 				if (!err) {
 					resolve(result);
 				} else {
@@ -37,7 +37,7 @@ module.exports = {
 	},
 	updateCategories: (name, id) => {
 		return new Promise((resolve, reject) => {
-			db.query('UPDATE categories SET ? WHERE id = ?', [name, id], (err, result) => {
+			db.query(`UPDATE categories SET name='${name}' WHERE id='${id}'`, (err, result) => {
 				if (!err) {
 					resolve(result);
 				} else {

@@ -3,6 +3,7 @@ const uuid = require('uuid/v4');
 const redis = require('../helpers/redis');
 const path = require('path');
 const fs = require('fs');
+const { validationResult } = require('express-validator');
 
 module.exports = {
 	getCompanies: (req, res) => {
@@ -33,27 +34,38 @@ module.exports = {
 			.catch(err => console.log(err));
 	},
 	addCompanies: (req, res) => {
-		const id = uuid();
-		const logo = req.file.filename;
-		const { name, location, description } = req.body;
-		const data = { id, name, logo, location, description };
+		const errors = validationResult(req);
 
-		Company.addCompanies(data)
-			.then(result => {
-				redis.client.get(req.baseUrl, (err, result) => {
-					redis.deleteCache(req.baseUrl);
-				});
-				redis.client.get(req.originalUrl, (err, result) => {
-					redis.deleteCache(req.originalUrl);
-				});
-				res.json({
-					status: 200,
-					error: false,
-					message: 'Success to add new company',
-					data
-				});
-			})
-			.catch(err => console.log(err));
+		if(!errors.isEmpty()) {
+			return res.status(400).json({
+				status: 400,
+				error: true,
+				message: 'Failed to add new company',
+				data: errors.array()
+			});
+		} else {
+			const id = uuid();
+			const logo = req.file.filename;
+			const { name, location, description } = req.body;
+			const data = { id, name, logo, location, description };
+
+			Company.addCompanies(data)
+				.then(result => {
+					redis.client.get(req.baseUrl, (err, result) => {
+						redis.deleteCache(req.baseUrl);
+					});
+					redis.client.get(req.originalUrl, (err, result) => {
+						redis.deleteCache(req.originalUrl);
+					});
+					res.json({
+						status: 200,
+						error: false,
+						message: 'Success to add new company',
+						data
+					});
+				})
+				.catch(err => console.log(err));
+		}
 	},
 	updateCompanies: (req, res) => {
 		const { id } = req.params;
