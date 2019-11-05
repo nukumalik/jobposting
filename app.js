@@ -25,7 +25,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 app.use('/api/v1', require('./src/config/routes'));
 
 // Port
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // Connect to Server
 app.listen(port, () => console.log(`Server is running on port ${port}`));

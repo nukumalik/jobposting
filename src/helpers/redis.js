@@ -14,7 +14,12 @@ module.exports = {
 			if (err) console.log(err);
 
 			if (result != null) {
-				res.send({ msg: 'From redis', result: JSON.parse(result) });
+				res.status(200).json({
+					status: 200,
+					error: false,
+					message: 'Success to get jobs',
+					data: JSON.parse(result),
+				});
 			} else {
 				return next(err);
 			}
@@ -26,5 +31,5 @@ module.exports = {
 	deleteCache: key => {
 		client.del(key);
 	},
-	client
+	client,
 };

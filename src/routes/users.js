@@ -14,7 +14,7 @@ router
 	.get('/:username', redis.getCache, usersController.getUsers)
 	.get('/', redis.getCache, usersController.getUsers)
 	.post('/login', validation.userLogin, usersController.loginUsers)
-	.post('/register', validation.userRegister, usersController.registerUsers)
+	.post('/register', usersController.registerUsers)
 	.patch('/:id', isAuthenticate, usersController.updateUsers)
 	.delete('/:id', isAuthenticate, usersController.deleteUsers);
 

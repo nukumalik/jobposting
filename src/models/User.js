@@ -3,7 +3,7 @@ const db = require('../config/database');
 module.exports = {
 	getUsers: (id, name, username, limit, offset, orderby) => {
 		return new Promise((resolve, reject) => {
-			let sql = 'SELECT name, username, born, gender, address, email FROM users';
+			let sql = 'SELECT * FROM users';
 
 			// Single job by ID
 			if (id) sql += ` WHERE id='${id}'`;

@@ -3,7 +3,7 @@ const db = require('../config/database');
 module.exports = {
 	getCategories: (id, name, limit, offset) => {
 		return new Promise((resolve, reject) => {
-			let sql = 'SELECT name FROM categories';
+			let sql = 'SELECT * FROM categories';
 
 			// Single job by ID
 			if (id) sql += ` WHERE id='${id}'`;
@@ -48,7 +48,7 @@ module.exports = {
 	},
 	deleteCategories: id => {
 		return new Promise((resolve, reject) => {
-			db.query('DELETE FROM categories WHERE id = ?', id, (err, result) => {
+			db.query('DELETE FROM categories WHERE id=${id}', (err, result) => {
 				if (!err) {
 					resolve(result);
 				} else {

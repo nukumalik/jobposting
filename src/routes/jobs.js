@@ -6,10 +6,10 @@ const validation = require('../helpers/validation');
 const jobsController = require('../controllers/jobsController');
 
 router
-    .get('/:id', redis.getCache, jobsController.getJobs)
-    .get('/', redis.getCache, jobsController.getJobs)
-    .post('/', validation.addJobs, jobsController.addJobs)
-    .patch('/:id', jobsController.updateJobs)
-    .delete('/:id', jobsController.deleteJobs);
+	.get('/:id', jobsController.getJobs)
+	.get('/', jobsController.getJobs)
+	.post('/', validation.addJobs, jobsController.addJobs)
+	.patch('/:id', jobsController.updateJobs)
+	.delete('/:id', jobsController.deleteJobs);
 
 module.exports = router;

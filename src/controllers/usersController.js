@@ -21,14 +21,15 @@ module.exports = {
 			.catch(err => console.log(err));
 	},
 	loginUsers: (req, res) => {
-		const { email, password } = req.body;
+		let { email, password } = req.body;
+		// password = password.toString();
 		const errors = validationResult(req);
 
 		if(!errors.isEmpty()) {
 			return res.status(400).json({
 				status: 400,
 				error: true,
-				message: 'Failed to add login',
+				message: 'Failed to login',
 				data: errors.array()
 			});
 		} else {
@@ -55,6 +56,7 @@ module.exports = {
 											status: 200,
 											error: false,
 											message: 'Success to login',
+											id: result.id,
 											token: 'Bearer ' + token
 										});
 									});
@@ -67,7 +69,7 @@ module.exports = {
 								message: 'Password invalid'
 							});
 						}
-					});
+					}).catch(err => console.log(err));
 				})
 				.catch(err => console.log(err));
 		}
@@ -82,7 +84,7 @@ module.exports = {
 			return res.status(400).json({
 				status: 400,
 				error: true,
-				message: 'Failed to add new category',
+				message: 'Failed to register new user',
 				data: errors.array()
 			});
 		} else {
@@ -95,7 +97,14 @@ module.exports = {
 								status: 200,
 								error: false,
 								message: 'Success to register new user account',
-								data
+								data: {
+									name: data.name,
+									username: data.username,
+									born: data.born,
+									gender: data.gender,
+									address: data.address,
+									email: data.email
+								}
 							})
 						)
 						.catch(err => console.log(err));
