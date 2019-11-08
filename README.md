@@ -9,8 +9,8 @@ This is my personal project to pass bootcamp first task and this is website for 
 
 ## Installation
 ### Clone
-    $ git clone https://github.com/nukumalik/jobfindout.git
-    $ cd jobfindout
+    $ git clone https://github.com/nukumalik/restful-jobposting.git
+    $ cd restful-jobposting
     $ npm install
 
 ### SQL
