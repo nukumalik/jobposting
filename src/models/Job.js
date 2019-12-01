@@ -1,68 +1,57 @@
-const db = require('../config/database');
+const db = require('../config/database')
 
-module.exports = {
-	getJobs: (id, name, company, limit, offset, orderby) => {
-		return new Promise((resolve, reject) => {
-			let sql =
-				'SELECT j.id, j.name AS jobs, j.description, k.name AS categories, j.salary, j.location, c.name AS companies, c.logo, j.created_at, j.updated_at FROM jobs j INNER JOIN categories k ON j.id_category=k.id INNER JOIN companies c ON j.id_company=c.id';
+// Get job
+const get = (slug, name, company, limit, offset, orderby) => {
+	return new Promise((resolve, reject) => {
+		let sql =
+			'SELECT j.name jobs, j.description, k.name categories, j.salary, j.location, c.name companies, c.logo, j.slug, j.created_at, j.updated_at \
+			FROM jobs j INNER JOIN categories k ON j.id_category=k.id INNER JOIN companies c ON j.id_company=c.id'
 
-			// Single job by ID
-			if (id) sql += ` WHERE j.id='${id}'`;
+		if (slug) sql += ` WHERE j.slug='${slug}'`
+		if (name && !company) sql += ` WHERE j.name like '%${name}%'`
+		if (company && !name) sql += ` WHERE c.name like '%${company}%'`
+		if (name && company) sql += ` WHERE j.name like '%${name}%' AND c.name like '%${company}%'`
+		if (orderby) sql += ` ORDER BY ${orderby}`
+		if (limit) sql += ` LIMIT ${limit}`
+		if (offset) sql += ` OFFSET ${offset}`
 
-			// Seacrh
-			if (name && !company) sql += ` WHERE j.name like '%${name}%'`;
-			if (company && !name) sql += ` WHERE c.name like '%${company}%'`;
-			if (name && company) sql += ` WHERE j.name like '%${name}%' AND c.name like '%${company}%'`;
+		db.query(sql, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
 
-			// Sort
-			if (orderby) sql += ` ORDER BY ${orderby}`;
+// Add job
+const add = data => {
+	return new Promise((resolve, reject) => {
+		const sql = 'INSERT INTO jobs SET ?'
 
-			// Pagination
-			if (limit) sql += ` LIMIT ${limit}`;
-			if (offset) sql += ` OFFSET ${offset}`;
+		db.query(sql, data, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
 
-			console.log(sql)
+// Update job
+const update = (data, id) => {
+	return new Promise((resolve, reject) => {
+		const sql = `UPDATE jobs SET ? WHERE id='${id}'`
 
-			db.query(sql, (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	addJobs: data => {
-		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO jobs SET ?', data, (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	updateJobs: (data, id) => {
-		return new Promise((resolve, reject) => {
-			db.query('UPDATE jobs SET ? WHERE id = ?', [data, id], (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	deleteJobs: id => {
-		return new Promise((resolve, reject) => {
-			db.query(`DELETE FROM jobs WHERE id='${id}'`, (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	}
-};
+		db.query(sql, data, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
+
+// Remove job
+const remove = id => {
+	return new Promise((resolve, reject) => {
+		const sql = `DELETE FROM jobs WHERE id='${id}'`
+
+		db.query(sql, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
+
+module.exports = { get, add, update, remove }

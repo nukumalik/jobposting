@@ -1,75 +1,59 @@
-const db = require('../config/database');
+const db = require('../config/database')
 
-module.exports = {
-	getUsers: (id, name, username, limit, offset, orderby) => {
-		return new Promise((resolve, reject) => {
-			let sql = 'SELECT * FROM users';
+// Get user data
+const get = id => {
+	return new Promise((resolve, reject) => {
+		let sql = 'SELECT * FROM users'
+		id ? (sql += ` WHERE id='${id}'`) : sql
 
-			// Single job by ID
-			if (id) sql += ` WHERE id='${id}'`;
-			if (username) sql += ` WHERE username='${username}'`;
+		db.query(sql, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
 
-			// Seacrh
-			if (name) sql += ` WHERE name like '%${name}%'`;
+// Login to user account
+const login = (email, password) => {
+	return new Promise((resolve, reject) => {
+		const sql = `SELECT * FROM users WHERE email='${email}' AND password='${password}'`
 
-			// Sort
-			if (orderby) sql += ` ORDER BY ${orderby}`;
+		db.query(sql, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
 
-			// Pagination
-			if (limit) sql += ` LIMIT ${limit}`;
-			if (offset) sql += ` OFFSET ${offset}`;
+// Register new account
+const register = data => {
+	return new Promise((resolve, reject) => {
+		const sql = 'INSERT INTO users set ?'
 
-			db.query(sql, (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	loginUsers: (email, password) => {
-		return new Promise((resolve, reject) => {
-			db.query('SELECT * FROM users WHERE email=? AND password=?', [email, password], (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	registerUsers: data => {
-		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO users SET ?', data, (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	updateUsers: (data, id) => {
-		return new Promise((resolve, reject) => {
-			db.query('UPDATE users SET ? WHERE id = ?', [data, id], (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	},
-	deleteUsers: id => {
-		return new Promise((resolve, reject) => {
-			db.query('DELETE FROM users WHERE id = ?', id, (err, result) => {
-				if (!err) {
-					resolve(result);
-				} else {
-					reject(new Error(err));
-				}
-			});
-		});
-	}
-};
+		db.query(sql, data, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
+
+// Update an user account
+const update = (data, id) => {
+	return new Promise((resolve, reject) => {
+		const sql = `UPDATE users SET ? WHERE id='${id}'`
+
+		db.query(sql, data, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
+
+// Remove user account
+const remove = id => {
+	return new Promise((resolve, reject) => {
+		const sql = `DELETE FROM users WHERE id='${id}'`
+
+		db.query(sql, (err, result) => {
+			err ? reject(new Error(err)) : resolve(result)
+		})
+	})
+}
+
+module.exports = { get, login, register, update, remove }

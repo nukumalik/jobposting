@@ -1,16 +1,16 @@
-const router = require('express').Router();
-const upload = require('../helpers/multer');
-const redis = require('../helpers/redis');
-const validation = require('../helpers/validation');
+const router = require('express').Router()
+const upload = require('../helpers/multer')
+// const redis = require('../helpers/redis')
+// const validation = require('../helpers/validation')
 
 // Controller
-const companiesController = require('../controllers/companiesController');
+const companies = require('../controllers/companies')
 
 router
-	.get('/:id', /**redis.getCache,*/ companiesController.getCompanies)
-	.get('/', /**redis.getCache,*/ companiesController.getCompanies)
-	.post('/', /**validation.addCompanies, /**upload,*/ companiesController.addCompanies)
-	.patch('/:id', companiesController.updateCompanies)
-	.delete('/:id', companiesController.deleteCompanies);
+	.get('/:id', companies.get)
+	.get('/', companies.get)
+	.post('/', upload, companies.add)
+	.patch('/:id', companies.update)
+	.delete('/:id', companies.remove)
 
-module.exports = router;
+module.exports = router

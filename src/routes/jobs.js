@@ -1,15 +1,15 @@
-const router = require('express').Router();
-const redis = require('../helpers/redis');
-const validation = require('../helpers/validation');
+const router = require('express').Router()
+// const redis = require('../helpers/redis')
+const validation = require('../helpers/validation')
 
 // Controler
-const jobsController = require('../controllers/jobsController');
+const jobs = require('../controllers/jobs')
 
 router
-	.get('/:id', jobsController.getJobs)
-	.get('/', jobsController.getJobs)
-	.post('/', validation.addJobs, jobsController.addJobs)
-	.patch('/:id', jobsController.updateJobs)
-	.delete('/:id', jobsController.deleteJobs);
+	.get('/:id', jobs.get)
+	.get('/', jobs.get)
+	.post('/', validation.addJobs, jobs.add)
+	.patch('/:id', jobs.update)
+	.delete('/:id', jobs.remove)
 
-module.exports = router;
+module.exports = router
