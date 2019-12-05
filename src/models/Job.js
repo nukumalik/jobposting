@@ -4,7 +4,7 @@ const db = require('../config/database')
 const get = (slug, name, company, limit, offset, orderby) => {
 	return new Promise((resolve, reject) => {
 		let sql =
-			'SELECT j.name jobs, j.description, k.name categories, j.salary, j.location, c.name companies, c.logo, j.slug, j.created_at, j.updated_at \
+			'SELECT j.id, j.name jobs, j.description, k.name categories, j.salary, j.location, c.name companies, c.logo, j.slug, j.created_at, j.updated_at \
 			FROM jobs j INNER JOIN categories k ON j.id_category=k.id INNER JOIN companies c ON j.id_company=c.id'
 
 		if (slug) sql += ` WHERE j.slug='${slug}'`
