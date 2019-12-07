@@ -22,38 +22,40 @@ const get = (req, res) => {
 	if (orderby == 'catoz') orderby = 'k.name ASC'
 	if (orderby == 'cztoa') orderby = 'k.name DESC'
 
-	Job.get(id, name, company, limit, offset, orderby)
-		.then(result => {
-			addCache(req.originalUrl, JSON.stringify(result))
-			const totalData = result.length
-			const totalPage = Math.ceil(totalData / limit)
-			let hasNext = true,
-				hasPrev = true,
-				Next,
-				Prev
-			if (page == totalPage) {
-				hasPrev = false
-				hasNext = false
-			}
-			if (hasNext) Next = '/api/v1/jobs?page=' + (Number(page) + 1)
-			if (hasPrev) Prev = '/api/v1/jobs?page=' + (Number(page) - 1)
-			const pagination = { limit, page, name, company, totalData, totalPage }
-			const pageLink = { hasNext, hasPrev, Next, Prev }
-			if (!result) {
-				successRes.message = 'Job is empty'
-			} else {
-				successRes.message = 'Success to get jobs'
-				successRes.pagination = pagination
-				successRes.pageLink = pageLink
-			}
-			successRes.data = result
-			res.status(200).json(successRes)
-		})
-		.catch(err => {
-			errorRes.message = 'Failed to get job'
-			errorRes.data = err
-			res.status(400).json(errorRes)
-		})
+	Job.get().then(res1 => {
+		Job.get(id, name, company, limit, offset, orderby)
+			.then(result => {
+				addCache(req.originalUrl, JSON.stringify(result))
+				const totalData = res1.length
+				const totalPage = Math.ceil(totalData / limit)
+				let hasNext = true,
+					hasPrev = true,
+					Next,
+					Prev
+				if (page == totalPage) {
+					hasPrev = false
+					hasNext = false
+				}
+				if (hasNext) Next = '/api/v1/jobs?page=' + (Number(page) + 1)
+				if (hasPrev) Prev = '/api/v1/jobs?page=' + (Number(page) - 1)
+				const pagination = { limit, page, name, company, totalData, totalPage }
+				const pageLink = { hasNext, hasPrev, Next, Prev }
+				if (!result) {
+					successRes.message = 'Job is empty'
+				} else {
+					successRes.message = 'Success to get jobs'
+					successRes.pagination = pagination
+					successRes.pageLink = pageLink
+				}
+				successRes.data = result
+				res.status(200).json(successRes)
+			})
+			.catch(err => {
+				errorRes.message = 'Failed to get job'
+				errorRes.data = err
+				res.status(400).json(errorRes)
+			})
+	})
 }
 
 // Add job

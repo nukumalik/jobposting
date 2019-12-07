@@ -17,42 +17,44 @@ const get = (req, res) => {
 	let offset = limit * (page - 1)
 	orderby ? (orderby = 'location') : (orderby = 'name')
 
-	Company.get(id, name, location, limit, offset, orderby)
-		.then(result => {
-			const totalData = result.length
-			const totalPage = Math.ceil(totalData / limit)
-			let hasNext = true,
-				hasPrev = true,
-				Next,
-				Prev
-			if (page <= totalPage) {
-				hasNext = false
-				hasPrev = true
-			}
-			if (totalPage > 1 && page < totalPage) {
-				hasNext = true
-				hasPrev = false
-			}
-			if (hasNext) Next = '/companies?page=' + (Number(page) + 1)
-			if (hasPrev) Prev = '/companies?page=' + (Number(page) - 1)
-			const pagination = { limit, page, totalData, totalPage }
-			const pageLink = { hasNext, hasPrev, Next, Prev }
+	Company.get().then(res1 => {
+		Company.get(id, name, location, limit, offset, orderby)
+			.then(result => {
+				const totalData = res1.length
+				const totalPage = Math.ceil(totalData / limit)
+				let hasNext = true,
+					hasPrev = true,
+					Next,
+					Prev
+				if (page <= totalPage) {
+					hasNext = false
+					hasPrev = true
+				}
+				if (totalPage > 1 && page < totalPage) {
+					hasNext = true
+					hasPrev = false
+				}
+				if (hasNext) Next = '/companies?page=' + (Number(page) + 1)
+				if (hasPrev) Prev = '/companies?page=' + (Number(page) - 1)
+				const pagination = { limit, page, totalData, totalPage }
+				const pageLink = { hasNext, hasPrev, Next, Prev }
 
-			if (!result) {
-				successRes.message = 'Company is empty'
-			} else {
-				id ? (successRes.message = 'Success to get user data') : (successRes.message = 'Success to get users data')
-				successRes.pagination = pagination
-				successRes.pageLink = pageLink
-			}
-			successRes.data = result
-			res.status(200).json(successRes)
-		})
-		.catch(err => {
-			errorRes.message = 'Failed to get company'
-			errorRes.data = err
-			res.status(400).json(errorRes)
-		})
+				if (!result) {
+					successRes.message = 'Company is empty'
+				} else {
+					id ? (successRes.message = 'Success to get user data') : (successRes.message = 'Success to get users data')
+					successRes.pagination = pagination
+					successRes.pageLink = pageLink
+				}
+				successRes.data = result
+				res.status(200).json(successRes)
+			})
+			.catch(err => {
+				errorRes.message = 'Failed to get company'
+				errorRes.data = err
+				res.status(400).json(errorRes)
+			})
+	})
 }
 
 // Add company
