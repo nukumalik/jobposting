@@ -2,6 +2,10 @@
 
 This is my personal project to pass bootcamp first task and this is website for people to make simple job posting website. This is open source and feel free to use and bought me.
 
+## Frontend
+
+For front end you can clone on this project: https://github.com/nukumalik/react-jobposting
+
 ## Prerequiste
 
 -   Node.js
